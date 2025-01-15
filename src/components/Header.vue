@@ -1,4 +1,7 @@
-import {RouterLink} from 'vue-router';
+<script setup lang="ts">
+import { RouterLink } from "vue-router";
+</script>
+
 <template>
   <nav id="header">
     <h1 id="header-title">:* (dospuntosasterisco)</h1>
@@ -15,7 +18,12 @@ import {RouterLink} from 'vue-router';
 </template>
 
 <style scoped>
+@font-face {
+  font-family: electrolize;
+  src: url(/fonts/Electrolize-Regular.ttf);
+}
 #header {
+  font-family: electrolize;
   display: flex;
   justify-content: space-between;
 }
