@@ -37,8 +37,8 @@ camera.position.z = 5;
 const animate = () => {
   renderer.render(scene, camera);
   renderer.setSize(width, height);
-  width = document.getElementById("ar")?.offsetWidth;
-  height = document.getElementById("ar")?.offsetHeight;
+  width = document.getElementById("ar")?.offsetWidth || 0;
+  height = document.getElementById("ar")?.offsetHeight || 0;
   document.body.addEventListener("mousemove", (e: MouseEvent) => {
     let mouseX = e.x * 0.001;
     let mouseY = e.y * 0.001;
