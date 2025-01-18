@@ -9,7 +9,12 @@ import { RouterLink } from "vue-router";
       <RouterLink to="/" class="header-menu-item" activeClass="menu-item-active"
         >INICIO</RouterLink
       >
-      <li class="header-menu-item">RESIDENCIAS</li>
+      <RouterLink
+        to="/residencias"
+        class="header-menu-item"
+        activeClass="menu-item-active"
+        >RESIDENCIAS</RouterLink
+      >
       <li class="header-menu-item">INSUMOS</li>
       <!-- EXPERIMENTOS IA, FOTOGRAMETRIAS Y GRINDERMANIAS -->
       <li class="header-menu-item">CONTACTO</li>
@@ -31,9 +36,12 @@ import { RouterLink } from "vue-router";
   display: inline-block;
 }
 #header-menu {
-  display: inline-block;
+  display: inline-flex;
+  justify-content: space-evenly;
+  align-items: center;
 }
 .header-menu-item {
+  padding: 0 2px !important;
   text-decoration: none;
   color: var(--color-text);
   display: inline-flex;
