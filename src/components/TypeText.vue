@@ -15,7 +15,7 @@ const currentCharIndex = ref(0);
 const previousCharIndex = ref(0);
 const currentText = ref("");
 const previousText = ref("");
-const isLeft = ref(true);
+const isLeft = ref(false);
 
 const typeWriter = () => {
   currentText.value = text[currentTextIndex.value];
@@ -71,20 +71,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="view">
-    <div id="ar"></div>
-    <div class="typewriter left">
-      <span>
-        {{ leftText }}
-      </span>
-      <span class="cursor"></span>
-    </div>
-    <div class="typewriter right">
-      <span>
-        {{ rightText }}
-      </span>
-      <span class="cursor"></span>
-    </div>
+  <div class="typewriter left">
+    <span>
+      {{ leftText }}
+    </span>
+    <span class="cursor"></span>
+  </div>
+  <div class="typewriter right">
+    <span>
+      {{ rightText }}
+    </span>
+    <span class="cursor"></span>
   </div>
 </template>
 
@@ -100,13 +97,13 @@ onMounted(() => {
   }
 
   &.left {
-    left: 0;
+    left: 5vw;
     top: 10vh;
   }
 
   &.right {
-    right: 0;
-    top: 10vh;
+    right: 5vw;
+    top: 65vh;
   }
 
   @keyframes blink {

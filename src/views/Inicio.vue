@@ -6,6 +6,16 @@ import Grindermanias from "@/components/Grindermanias.vue";
 <template>
   <TypeText />
   <Grindermanias />
+  <div id="background"></div>
 </template>
 
-<style scoped lang="less"></style>
+<style lang="less">
+#view {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+</style>

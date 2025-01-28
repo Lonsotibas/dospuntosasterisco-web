@@ -4,12 +4,10 @@ import Header from "./components/Header.vue";
 
 <template>
   <Header />
-  <main id="view">
-    <RouterView />
-  </main>
+  <RouterView />
 </template>
 
-<style>
+<style scoped>
 @font-face {
   font-family: geo;
   src: url(/fonts/Geo-Regular.ttf);

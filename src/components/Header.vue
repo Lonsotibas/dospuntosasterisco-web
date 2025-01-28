@@ -28,6 +28,7 @@ import { RouterLink } from "vue-router";
   src: url(/fonts/Electrolize-Regular.ttf);
 }
 #header {
+  padding: 0 5vw;
   height: 5vh;
   font-family: electrolize;
   display: flex;

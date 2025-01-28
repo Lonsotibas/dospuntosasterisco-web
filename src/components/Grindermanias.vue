@@ -39,8 +39,8 @@ loader.load(
 );
 
 // Lighting
-const light = new THREE.DirectionalLight(0xffffff, 4);
-light.position.set(6, 3, 5);
+const light = new THREE.DirectionalLight(0xffffff, 5);
+light.position.set(4, 3, 5);
 scene.add(light);
 
 // Camera setup
@@ -48,7 +48,7 @@ const initialCameraPosition = new THREE.Vector3(0, 1.5, 10);
 camera.position.copy(initialCameraPosition);
 
 // Animation parameters
-const orbitRadius = 7;
+const orbitRadius = 8;
 let currentOrbitAngle = Math.PI * 1.5; // Initial angle for through animation end position
 
 // Animation functions
@@ -113,17 +113,13 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="ar"></div>
+  <div id="ar"></div>
 </template>
 
 <style scoped lang="less">
-div.ar {
+#ar {
   position: absolute;
-  width: 100vw;
-  height: 80vh;
-
-  canvas {
-    margin: 0 auto;
-  }
+  top: 0;
+  z-index: -2;
 }
 </style>
