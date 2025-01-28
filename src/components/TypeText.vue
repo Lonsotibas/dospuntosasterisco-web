@@ -19,7 +19,7 @@ const isLeft = ref(true);
 
 const typeWriter = () => {
   currentText.value = text[currentTextIndex.value];
-  const typeSpeed = 10;
+  const typeSpeed = 100;
 
   if (isLeft.value) {
     leftText.value = currentText.value.substring(0, currentCharIndex.value);

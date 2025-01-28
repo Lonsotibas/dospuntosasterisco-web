@@ -4,7 +4,7 @@ import Header from "./components/Header.vue";
 
 <template>
   <Header />
-  <main>
+  <main id="view">
     <RouterView />
   </main>
 </template>
@@ -21,5 +21,9 @@ body {
 main {
   position: relative;
   max-height: 95vh;
+}
+#view {
+  display: flex !important;
+  justify-content: center;
 }
 </style>
