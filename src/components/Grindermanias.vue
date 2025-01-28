@@ -8,19 +8,19 @@ import { onMounted, onUnmounted } from "vue";
 // Configuration
 const width = 1440;
 const height = 1080;
-const initialCameraPosition = new THREE.Vector3(0, 1.5, 5);
 THREE.Cache.enabled = true;
 
 // Scene setup
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setSize(width, height);
 renderer.setClearColor(0x131316, 1);
 
 // Loaders setup
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.7/");
+dracoLoader.setDecoderPath(
+  "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
+);
 dracoLoader.preload();
 
 const loader = new GLTFLoader();
@@ -44,51 +44,50 @@ light.position.set(6, 3, 5);
 scene.add(light);
 
 // Camera setup
-const initialPosition = new THREE.Vector3(0,1.5,5);
+const initialCameraPosition = new THREE.Vector3(0, 1.5, 10);
 camera.position.copy(initialCameraPosition);
 
-
 // Animation parameters
-const orbitRadius = 5;
+const orbitRadius = 7;
 let currentOrbitAngle = Math.PI * 1.5; // Initial angle for through animation end position
 
 // Animation functions
 const startThroughAnimation = () => {
   // Reset to initial position before starting through animation
-  camera.position.set(0, 1.5, 5);
+  camera.position.set(0, 1.5, orbitRadius);
 
   gsap.to(camera.position, {
-    z: -5,
-    duration: 3,
+    z: -orbitRadius,
+    duration: 6,
     ease: "power1.inOut",
-    onComplete: startOrbitAnimation
+    onComplete: startOrbitAnimation,
   });
 };
 
 const startOrbitAnimation = () => {
   const angleTarget = { angle: currentOrbitAngle };
   const targetAngle = currentOrbitAngle + Math.PI; // 180 degree rotation
-  const orbitDuration = 4;
+  const orbitDuration = 6;
 
   gsap.to(angleTarget, {
     angle: targetAngle,
     duration: orbitDuration,
-    ease: "power1.inOut",
+    ease: "none",
     onUpdate: () => {
       camera.position.x = orbitRadius * Math.cos(angleTarget.angle);
       camera.position.z = orbitRadius * Math.sin(angleTarget.angle);
     },
     onComplete: () => {
-      currentOrbitAngle = targetAngle % (Math.PI * 2);
+      currentOrbitAngle = Math.PI * 1.5;
       startThroughAnimation();
-    }
+    },
   });
 };
 
 // Rendering loop
 const animate = () => {
   camera.lookAt(0, 0, 0);
-  renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 };
 
@@ -100,29 +99,31 @@ onMounted(() => {
   renderer.setAnimationLoop(animate);
 
   window.addEventListener("resize", () => {
-    camera.aspect = (window.innerWidth/2) /  (window.innerHeight/2);
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
+    renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
   startThroughAnimation();
 });
 
 onUnmounted(() => {
-    renderer.setAnimationLoop(null);
-})
+  renderer.setAnimationLoop(null);
+});
 </script>
 
 <template>
-  <div id="ar"></div>
+  <div class="ar"></div>
 </template>
 
 <style scoped lang="less">
-#ar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-  height: 70vh;
+div.ar {
+  position: absolute;
+  width: 100vw;
+  height: 80vh;
+
+  canvas {
+    margin: 0 auto;
+  }
 }
 </style>
