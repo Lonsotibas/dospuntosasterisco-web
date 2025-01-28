@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TypeText from "@/components/TypeText.vue";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { DRACOLoader } from "three/examples/jsm/Addons.js";
@@ -19,7 +20,7 @@ const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/examples/jsm/libs/draco");
 loader.load(
-  "/models/Mounstro69_textured_mesh_medpoly_glb.glb",
+  "/models/grindermanias.glb",
   (gltf) => {
     model = scene.add(gltf.scene);
   },
@@ -29,10 +30,13 @@ loader.load(
   }
 );
 
-const light = new THREE.AmbientLight(0xffffff);
+const light = new THREE.DirectionalLight(0xffffff, 4);
+light.castShadow = true;
+light.position.set(4, 2, 3);
+light.target.position.set(0, 0, 0);
 scene.add(light);
 
-camera.position.z = 5;
+camera.position.z = 10;
 
 const animate = () => {
   renderer.render(scene, camera);
@@ -47,8 +51,8 @@ const animate = () => {
     model.rotation.x = 0 * elapsedTime;
     model.rotation.y = 0 * elapsedTime;
 
-    model.rotation.x += 3 * (mouseY - model.rotation.x);
-    model.rotation.y -= 0.9 * (mouseX - model.rotation.y);
+    model.rotation.x -= 3 * (-mouseY - model.rotation.x);
+    model.rotation.y -= 4 * (-mouseX - model.rotation.y);
   });
 };
 
@@ -61,32 +65,11 @@ onMounted(() => {
 <template>
   <div id="view">
     <div id="ar"></div>
-    <div id="text">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque dolorem,
-      dolor accusantium atque dolore, deserunt voluptate, amet veritatis dicta
-      eligendi repudiandae aliquam? Esse, libero dignissimos ad minima animi,
-      eligendi error placeat porro debitis ea, laudantium nulla! Quis
-      consequuntur necessitatibus aperiam illum et ab quos aut ipsum dolorem
-      blanditiis, sint optio rem voluptate debitis quod perspiciatis dolore
-      repellat tempore unde voluptatibus similique illo! Quas unde fugit tempora
-      illo sit minima soluta? Explicabo culpa aperiam earum obcaecati,
-      laboriosam ullam dignissimos accusamus necessitatibus!
-    </div>
-    <div id="text-2">
-      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eum sed possimus
-      molestias obcaecati distinctio! Corporis consequatur deleniti et pariatur
-      culpa temporibus magni perferendis ex! Aspernatur reprehenderit debitis,
-      amet accusamus laboriosam nobis tenetur! Eaque, placeat. Ipsum molestias
-      voluptate libero odio nesciunt, animi obcaecati dolorum? Tempora, ipsum
-      mollitia! Amet culpa quasi aspernatur ex omnis reprehenderit adipisci.
-      Ipsam facilis possimus repellat vero ut? Quis in magnam incidunt odit
-      dolorem nostrum cumque illo ipsum beatae consequatur placeat delectus
-      minima, suscipit error? Laboriosam, quasi cupiditate.
-    </div>
+    <TypeText />
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 #view {
   display: flex !important;
   justify-content: center;
@@ -94,18 +77,5 @@ onMounted(() => {
 #ar {
   max-width: 100%;
   height: 90vh;
-}
-#text {
-  position: absolute;
-  left: 20vw;
-  top: 20vh;
-  width: 15vw;
-}
-#text-2 {
-  text-align: right;
-  position: absolute;
-  right: 20vw;
-  top: 20vh;
-  width: 15vw;
 }
 </style>

@@ -28,12 +28,14 @@ import { RouterLink } from "vue-router";
   src: url(/fonts/Electrolize-Regular.ttf);
 }
 #header {
+  height: 5vh;
   font-family: electrolize;
   display: flex;
   justify-content: space-between;
 }
 #header-title {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 }
 #header-menu {
   display: inline-flex;

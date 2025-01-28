@@ -18,4 +18,8 @@ body {
   font-family: geo !important;
   font-size: 1.2em;
 }
+main {
+  position: relative;
+  max-height: 95vh;
+}
 </style>

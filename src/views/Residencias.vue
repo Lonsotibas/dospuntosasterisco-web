@@ -6,7 +6,7 @@ import image from "/images/no-image.png";
 <template>
   <div class="image-gallery">
     <VerticalGallery :itemHeight="120">
-      <div class="item" v-for="index in 10">
+      <div class="item" v-for="index in 15">
         <span>{{ index }}</span>
         <img class="img-item" :src="image" alt="" />
       </div>
@@ -16,15 +16,16 @@ import image from "/images/no-image.png";
 
 <style scoped lang="less">
 .image-gallery {
-  width: 200px;
-  height: 500px;
-  margin: 0 auto;
+  width: 50vw;
+  height: 95vh;
 }
 .item {
-  height: 120px;
+  height: 20%;
+  z-index: 2;
+  font-size: 2em;
   box-sizing: border-box;
-  padding: 2px 0;
   text-align: center;
+  color: black;
 }
 .img-item {
   height: 100%;

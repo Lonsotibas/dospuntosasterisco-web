@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useTemplateRef, onMounted, ref } from "vue";
 let itemHeight: any = defineProps(["itemHeight"]);
-let height = ref(0);
+let height: any = ref("auto");
 let verticalContentHeight = ref(0);
 let verticalContentTop = ref(0);
 let actionHeight = ref(0);
@@ -27,13 +27,12 @@ const prevFun = () => {
 const nextFun = () => {
   let isItemHeight =
     contentHeight.value + contentTop.value - height.value + actionHeight.value;
-  console.log(isItemHeight);
   if (isItemHeight > 0 && isItemHeight > itemHeight) {
     contentTop.value -= itemHeight;
     prevShow = true;
   } else {
     contentTop.value -= isItemHeight;
-    nextShow = false;
+    nextShow = true;
     nextEnd = true;
   }
 };
@@ -56,17 +55,14 @@ onMounted(() => {
 
 <template>
   <div class="vertical-gallery" ref="vertical">
-    <div
-      class="vertical-prev"
-      ref="action"
-      v-show="prevShow"
-      @click="prevFun"
-    ></div>
+    <div @click="prevFun" class="vertical-prev" ref="action" v-show="prevShow">
+      <div class="prev-span"></div>
+    </div>
     <div
       class="vertical-content"
       :style="{
-        height: `${verticalContentHeight}px`,
-        top: `${verticalContentTop}px`,
+        height: `${height - actionHeight}px`,
+        top: `${actionHeight / 2}px`,
       }"
     >
       <div
@@ -77,7 +73,7 @@ onMounted(() => {
         <slot></slot>
       </div>
     </div>
-    <div class="vertical-next" @click="nextFun" v-show="nextShow">
+    <div @click="nextFun" class="vertical-next" v-show="nextShow">
       <div class="next-span"></div>
     </div>
   </div>
@@ -88,7 +84,6 @@ onMounted(() => {
   background-color: var(--white-soft);
   position: relative;
   height: 100%;
-  color: #666;
   .vertical-next,
   .vertical-prev {
     position: absolute;
@@ -116,7 +111,7 @@ onMounted(() => {
     top: 50%;
     width: 10px;
     height: 5px;
-    /*background: url("../assets/arrow.png") no-repeat;*/
+    /* background: url("../assets/arrow.png") no-repeat; */
     background-size: 100%;
   }
   .next-span {
