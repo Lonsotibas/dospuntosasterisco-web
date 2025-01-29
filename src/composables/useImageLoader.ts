@@ -10,10 +10,19 @@ export function useImageLoader() {
   ): GalleryItem[] => {
     return Array.from({ length: itemsCount }, (_, i) => {
       const imgNumber = i + 1;
+      // Use Vite's asset handling
+      const webpPath = new URL(
+        `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.webp`,
+        import.meta.url
+      ).href;
+      const jpgPath = new URL(
+        `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.jpg`,
+        import.meta.url
+      ).href;
+
       return {
-        // Add WebP version if available
-        image: `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.webp`,
-        fallback: `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.jpg`,
+        image: webpPath,
+        fallback: jpgPath,
         alt: `Gallery ${galleryNumber} - Image ${imgNumber}`,
       };
     });

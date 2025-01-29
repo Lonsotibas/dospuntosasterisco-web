@@ -25,6 +25,8 @@ const galleries = ref([
 
 <style lang="less" scoped>
 .residencias-container {
+  will-change: contents;
+  backface-visibility: hidden;
   display: flex;
   overflow: hidden;
   height: 95vh;

@@ -35,6 +35,7 @@ import { RouterLink } from "vue-router";
   padding: 0 5vw;
   height: 5vh;
   font-family: electrolize;
+  font-size: 0.9rem;
   display: flex;
   justify-content: space-between;
 }

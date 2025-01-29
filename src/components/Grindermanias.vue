@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import gsap from "gsap";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { DRACOLoader } from "three/examples/jsm/Addons.js";
-import gsap from "gsap";
 import { onMounted, onUnmounted } from "vue";
 
 // Configuration
@@ -48,26 +48,15 @@ const initialCameraPosition = new THREE.Vector3(0, 1.5, 10);
 camera.position.copy(initialCameraPosition);
 
 // Animation parameters
-const orbitRadius = 8;
+const orbitRadius = 6;
 let currentOrbitAngle = Math.PI * 1.5; // Initial angle for through animation end position
 
 // Animation functions
-const startThroughAnimation = () => {
-  // Reset to initial position before starting through animation
-  camera.position.set(0, 1.5, orbitRadius);
-
-  gsap.to(camera.position, {
-    z: -orbitRadius,
-    duration: 6,
-    ease: "power1.inOut",
-    onComplete: startOrbitAnimation,
-  });
-};
-
 const startOrbitAnimation = () => {
   const angleTarget = { angle: currentOrbitAngle };
-  const targetAngle = currentOrbitAngle + Math.PI; // 180 degree rotation
-  const orbitDuration = 6;
+  const targetAngle = currentOrbitAngle + Math.PI * 2; // 180 degree rotation
+  const orbitDuration = 12;
+  camera.position.y = 8;
 
   gsap.to(angleTarget, {
     angle: targetAngle,
@@ -79,7 +68,7 @@ const startOrbitAnimation = () => {
     },
     onComplete: () => {
       currentOrbitAngle = Math.PI * 1.5;
-      startThroughAnimation();
+      startOrbitAnimation();
     },
   });
 };
@@ -104,7 +93,7 @@ onMounted(() => {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  startThroughAnimation();
+  startOrbitAnimation();
 });
 
 onUnmounted(() => {
