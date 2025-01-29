@@ -1,5 +1,6 @@
 interface GalleryItem {
   image: string;
+  fallback: string;
   alt: string;
 }
 
