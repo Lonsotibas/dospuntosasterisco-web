@@ -11,9 +11,9 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     ViteImageOptimizer({
-      jpg: { quality: parseInt(process.env.VITE_IMAGE_QUALITY || "85") },
-      png: { quality: parseInt(process.env.VITE_IMAGE_QUALITY || "85") },
-      webp: { quality: parseInt(process.env.VITE_IMAGE_QUALITY || "85") },
+      jpg: { quality: 20 },
+      png: { quality: 20 },
+      webp: { quality: 30 },
     }),
   ],
   resolve: {
@@ -22,4 +22,12 @@ export default defineConfig({
     },
   },
   assetsInclude: ["**/*.webp", "**/*.jpg"],
+  build: {
+    rollupOptions: {
+      output: {
+        assetFileNames: "assets/[name]-[hash][extname]",
+      },
+    },
+    assetsInlineLimit: 0,
+  },
 });

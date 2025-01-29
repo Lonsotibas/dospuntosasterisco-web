@@ -2,6 +2,10 @@ interface GalleryItem {
   image: string;
   fallback: string;
   alt: string;
+  srcset: string;
+  sizes: string;
+  width: number;
+  height: number;
 }
 
 export function useImageLoader() {
@@ -11,20 +15,16 @@ export function useImageLoader() {
   ): GalleryItem[] => {
     return Array.from({ length: itemsCount }, (_, i) => {
       const imgNumber = i + 1;
-      // Use Vite's asset handling
-      const webpPath = new URL(
-        `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.webp`,
-        import.meta.url
-      ).href;
-      const jpgPath = new URL(
-        `/src/assets/images/residencias/gallery${galleryNumber}/${imgNumber}.jpg`,
-        import.meta.url
-      ).href;
+      const basePath = `/images/residencias/gallery${galleryNumber}/${imgNumber}`; // Updated path
 
       return {
-        image: webpPath,
-        fallback: jpgPath,
+        image: `${basePath}.webp`,
+        fallback: `${basePath}.jpg`,
+        srcset: `${basePath}.webp 400w, ${basePath}-800w.webp 800w, ${basePath}-1200w.webp 1200w`, // Example with different sizes
+        sizes: "(max-width: 768px) 100vw, 50vw",
         alt: `Gallery ${galleryNumber} - Image ${imgNumber}`,
+        width: 800,
+        height: 533,
       };
     });
   };

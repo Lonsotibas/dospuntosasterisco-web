@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import VerticalGallery from "@/components/VerticalGallery.vue";
 import { useImageLoader } from "@/composables/useImageLoader";
+import { useHead } from "unhead";
 
 const { generateGallery } = useImageLoader();
 const galleries = ref([
@@ -11,6 +12,21 @@ const galleries = ref([
   { items: generateGallery(4, 16) },
   { items: generateGallery(5, 13) },
 ]);
+
+// Add this after galleries initialization
+
+useHead({
+  link: galleries.value.flatMap((gallery, index) =>
+    gallery.items.slice(0, 3).map((item) => ({
+      rel: "preload",
+      as: "image",
+      href: item.image,
+      imagesrcset: item.srcset,
+      imagesizes: item.sizes,
+      type: "image/webp",
+    }))
+  ),
+});
 </script>
 
 <template>
