@@ -1,34 +1,42 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import VerticalGallery from "@/components/VerticalGallery.vue";
-import image from "/images/no-image.png";
+import { useImageLoader } from "@/composables/useImageLoader";
+
+const { generateGallery } = useImageLoader();
+const galleries = ref([
+  { items: generateGallery(1, 3) },
+  { items: generateGallery(2, 9) },
+  { items: generateGallery(3, 6) },
+  { items: generateGallery(4, 16) },
+  { items: generateGallery(5, 13) },
+]);
 </script>
 
 <template>
-  <div class="image-gallery">
-    <VerticalGallery :itemHeight="120">
-      <div class="item" v-for="index in 15">
-        <span>{{ index }}</span>
-        <img class="img-item" :src="image" alt="" />
-      </div>
-    </VerticalGallery>
+  <div class="residencias-container">
+    <VerticalGallery
+      v-for="(gallery, index) in galleries"
+      :key="index"
+      :items="gallery.items"
+    />
   </div>
 </template>
 
-<style scoped lang="less">
-.image-gallery {
-  width: 50vw;
+<style lang="less" scoped>
+.residencias-container {
+  display: flex;
+  overflow: hidden;
   height: 95vh;
-}
-.item {
-  height: 20%;
-  z-index: 2;
-  font-size: 2em;
-  box-sizing: border-box;
-  text-align: center;
-  color: black;
-}
-.img-item {
-  height: 100%;
-  max-width: 100%;
+
+  > * {
+    flex: 1;
+    width: 20%;
+    border-right: 2px solid #000;
+
+    &:last-child {
+      border-right: none;
+    }
+  }
 }
 </style>

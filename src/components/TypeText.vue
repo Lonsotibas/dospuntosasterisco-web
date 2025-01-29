@@ -19,7 +19,7 @@ const isLeft = ref(false);
 
 const typeWriter = () => {
   currentText.value = text[currentTextIndex.value];
-  const typeSpeed = 50;
+  const typeSpeed = 100;
 
   if (isLeft.value) {
     leftText.value = currentText.value.substring(0, currentCharIndex.value);
@@ -46,7 +46,7 @@ const typeWriter = () => {
 };
 
 const deteleText = () => {
-  const deleteSpeed = 200;
+  const deleteSpeed = 50;
   if (!isLeft.value) {
     leftText.value = previousText.value.substring(
       0,
@@ -88,8 +88,8 @@ onMounted(() => {
 <style scoped lang="less">
 .typewriter {
   position: absolute;
-  width: 20vw;
-  font-size: 1.4rem;
+  width: 15vw;
+  font-size: 1.1em;
 
   .cursor {
     border-right: 0.1em solid #fff;
@@ -98,12 +98,13 @@ onMounted(() => {
 
   &.left {
     left: 5vw;
-    top: 10vh;
+    top: 20vh;
   }
 
   &.right {
-    right: 5vw;
-    top: 65vh;
+    width: 40vw;
+    right: 30vw;
+    top: 80vh;
   }
 
   @keyframes blink {

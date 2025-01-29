@@ -38,6 +38,7 @@
   --color-text: var(--text-light-1);
 
   --section-gap: 160px;
+  --item-spacing: 2px; /* Adjust based on your design needs */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -51,6 +52,7 @@
 
     --color-heading: var(--text-dark-1);
     --color-text: var(--text-dark-1);
+    --item-spacing: 2px; /* Adjust based on your design needs */
   }
 }
 
