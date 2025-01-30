@@ -15,7 +15,13 @@ export function useImageLoader() {
   ): GalleryItem[] => {
     return Array.from({ length: itemsCount }, (_, i) => {
       const imgNumber = i + 1;
+<<<<<<< HEAD
       const basePath = `/images/residencias/gallery${galleryNumber}/${imgNumber}`; // Updated path
+=======
+      // Use Vite's asset handling
+      const webpPath = `/images/residencias/gallery${galleryNumber}/${imgNumber}.webp`;
+      const jpgPath = `/images/residencias/gallery${galleryNumber}/${imgNumber}.jpg`;
+>>>>>>> b64f4ef (Residencia)
 
       return {
         image: `${basePath}.webp`,

@@ -19,7 +19,7 @@ const isLeft = ref(true);
 
 const typeWriter = () => {
   currentText.value = text[currentTextIndex.value];
-  const typeSpeed = 50;
+  const typeSpeed = 80;
 
   if (isLeft.value) {
     leftText.value = currentText.value.substring(0, currentCharIndex.value);
@@ -34,7 +34,7 @@ const typeWriter = () => {
   ) {
     previousCharIndex.value = currentCharIndex.value;
     previousText.value = currentText.value;
-    setTimeout(deteleText, 4000);
+    setTimeout(deteleText, 5000);
     isLeft.value = !isLeft.value;
     currentTextIndex.value++;
     currentCharIndex.value = 0;
@@ -90,7 +90,7 @@ onMounted(() => {
   position: absolute;
   width: 15vw;
   font-size: 1.1em;
-  top: 30vh;
+  top: 25vh;
 
   .cursor {
     border-right: 0.1em solid #fff;

@@ -13,14 +13,66 @@ interface GalleryItem {
 
 const props = defineProps<{
   items: GalleryItem[];
+  openModal: (item: GalleryItem) => void;
 }>();
 
 const container = ref<HTMLElement | null>(null);
+const autoScrollInterval = ref<NodeJS.Timeout | null>(null);
+const scrollDirection = ref<"up" | "down">(Math.random() < 0.5 ? "up" : "down");
+const scrollDelay = ref(2000 + Math.random() * 1000);
 let observer: IntersectionObserver;
-let isScrolling = false;
 const loadedImages = ref(new Set<number>());
 
-// Updated handleWheel with proper throttling
+const autoScroll = () => {
+  if (!container.value) return;
+
+  const itemHeight = container.value.offsetHeight / 3;
+  const currentScroll = container.value.scrollTop;
+  const maxScroll = container.value.scrollHeight - container.value.clientHeight;
+
+  let nextScroll =
+    currentScroll +
+    (scrollDirection.value === "down" ? itemHeight * 0.8 : -itemHeight * 0.8);
+  let newDirection = scrollDirection.value;
+
+  if (nextScroll >= maxScroll) {
+    nextScroll = maxScroll;
+    newDirection = "up";
+  } else if (nextScroll <= 0) {
+    nextScroll = 0;
+    newDirection = "down";
+  }
+
+  const variation = Math.random() * 2000 - 250;
+  const efectiveDelay = Math.max(2500, 4000 + variation);
+
+  container.value.scrollTo({
+    top: nextScroll,
+    behavior: "smooth",
+  });
+
+  scrollDirection.value = newDirection;
+  scrollDelay.value = efectiveDelay;
+};
+
+const startAutoScroll = () => {
+  if (autoScrollInterval.value) return;
+  const scrollWithDelay = () => {
+    autoScroll();
+    autoScrollInterval.value = setTimeout(scrollWithDelay, scrollDelay.value);
+  };
+  autoScrollInterval.value = setTimeout(
+    scrollWithDelay,
+    1500 + Math.random() * 1000
+  );
+};
+
+const stopAutoScroll = () => {
+  if (!autoScrollInterval.value) return;
+  clearTimeout(autoScrollInterval.value);
+  autoScrollInterval.value = null;
+};
+
 const handleWheel = (event: WheelEvent) => {
   if (!container.value) return;
 
@@ -29,7 +81,6 @@ const handleWheel = (event: WheelEvent) => {
   const itemHeight = container.value.offsetHeight / 3;
   const targetScroll = container.value.scrollTop + delta * itemHeight;
 
-  // Use smooth scroll behavior with boundary checks
   container.value.scrollTo({
     top: Math.max(
       0,
@@ -42,7 +93,6 @@ const handleWheel = (event: WheelEvent) => {
   });
 };
 
-// Optimized IntersectionObserver setup
 const setupLazyLoading = () => {
   // Change IntersectionObserver configuration
   observer = new IntersectionObserver(
@@ -50,8 +100,18 @@ const setupLazyLoading = () => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const img = entry.target as HTMLImageElement;
+<<<<<<< HEAD
           // Add 100ms delay to ensure scroll position is stable
           setTimeout(() => loadImage(img), 100);
+=======
+          const idx = Number(img.dataset.index);
+          if (!loadedImages.value.has(idx)) {
+            img.src =
+              img.dataset.src || img.dataset.fallback || "/images/no-image.png";
+            loadedImages.value.add(idx);
+          }
+          observer.unobserve(img);
+>>>>>>> b64f4ef (Residencia)
         }
       });
     },
@@ -90,7 +150,12 @@ const handleImageError = (event: Event) => {
 
 onMounted(() => {
   setupLazyLoading();
+<<<<<<< HEAD
   // Preload first 3 items in THIS gallery
+=======
+  startAutoScroll();
+
+>>>>>>> b64f4ef (Residencia)
   const firstThree = container.value?.querySelectorAll(
     '[data-index="0"], [data-index="1"], [data-index="2"]'
   );
@@ -100,23 +165,60 @@ onMounted(() => {
     loadedImages.value.add(Number(target.dataset.index));
   });
 
-  // Observe all images in THIS gallery
   const images = container.value?.querySelectorAll(".lazy-load");
   images?.forEach((img) => observer.observe(img));
 });
 
+<<<<<<< HEAD
 // Add cleanup in onBeforeUnmount
+=======
+const handleMouseEnter = () => {
+  stopAutoScroll();
+  if (!container.value) return;
+  container.value.dataset.lastScrollTop = container.value.scrollTop.toString();
+};
+
+const handleMouseLeave = () => {
+  setTimeout(() => {
+    if (!container.value || !container.value.dataset.lastScroll) return;
+    container.value.scrollTop = Number(container.value.dataset.lastScrollTop);
+    startAutoScroll();
+  });
+};
+
+>>>>>>> b64f4ef (Residencia)
 onBeforeUnmount(() => {
+  stopAutoScroll();
   observer?.disconnect();
   loadedImages.value.clear();
   container.value = null;
 });
+<<<<<<< HEAD
 </script>
 
 <template>
   <div class="gallery-container" @wheel.passive="handleWheel" ref="container">
+=======
+
+defineExpose({ startAutoScroll, stopAutoScroll });
+</script>
+
+<template>
+  <div
+    class="gallery-container"
+    @wheel="handleWheel"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+    ref="container"
+  >
+>>>>>>> b64f4ef (Residencia)
     <div class="items-container">
-      <div v-for="(item, index) in items" :key="index" class="gallery-item">
+      <div
+        v-for="(item, index) in items"
+        :key="index"
+        class="gallery-item"
+        @click="openModal(item)"
+      >
         <img
           :data-src="item.image"
           :data-fallback="item.fallback"
@@ -146,6 +248,7 @@ onBeforeUnmount(() => {
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
+  transition: scroll-top 3s ease-in-out;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 
@@ -161,11 +264,17 @@ onBeforeUnmount(() => {
     margin: 0;
 
     .gallery-item {
+      transition: transform 1.5s ease-in-out;
       image-rendering: -webkit-optimize-contrast;
+<<<<<<< HEAD
       content-visibility: auto;
       contain-intrinsic-height: 30vh;
       width: 100%;
       height: 30vh; /* Show 3 items at a time */
+=======
+      width: 100%;
+      height: 33.334vh; /* Show 3 items at a time */
+>>>>>>> b64f4ef (Residencia)
       scroll-snap-align: start;
       position: relative;
       display: flex;
@@ -186,6 +295,10 @@ onBeforeUnmount(() => {
         height: 100%;
         object-fit: cover;
         position: absolute;
+
+        &:hover {
+          cursor: pointer;
+        }
 
         &.lazy-load {
           @keyframes shimmer {
