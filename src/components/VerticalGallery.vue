@@ -5,10 +5,6 @@ interface GalleryItem {
   image: string;
   fallback: string;
   alt: string;
-  srcset: string;
-  sizes: string;
-  width: number;
-  height: number;
 }
 
 const props = defineProps<{
@@ -19,7 +15,7 @@ const props = defineProps<{
 const container = ref<HTMLElement | null>(null);
 const autoScrollInterval = ref<NodeJS.Timeout | null>(null);
 const scrollDirection = ref<"up" | "down">(Math.random() < 0.5 ? "up" : "down");
-const scrollDelay = ref(2000 + Math.random() * 1000);
+const scrollDelay = ref(3000 + Math.random() * 1000);
 let observer: IntersectionObserver;
 const loadedImages = ref(new Set<number>());
 
@@ -43,7 +39,7 @@ const autoScroll = () => {
     newDirection = "down";
   }
 
-  const variation = Math.random() * 2000 - 250;
+  const variation = Math.random() * 1500 - 250;
   const efectiveDelay = Math.max(2500, 4000 + variation);
 
   container.value.scrollTo({
@@ -94,16 +90,11 @@ const handleWheel = (event: WheelEvent) => {
 };
 
 const setupLazyLoading = () => {
-  // Change IntersectionObserver configuration
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           const img = entry.target as HTMLImageElement;
-<<<<<<< HEAD
-          // Add 100ms delay to ensure scroll position is stable
-          setTimeout(() => loadImage(img), 100);
-=======
           const idx = Number(img.dataset.index);
           if (!loadedImages.value.has(idx)) {
             img.src =
@@ -111,37 +102,20 @@ const setupLazyLoading = () => {
             loadedImages.value.add(idx);
           }
           observer.unobserve(img);
->>>>>>> b64f4ef (Residencia)
         }
       });
     },
-    {
-      root: container.value,
-      rootMargin: "500px 0px",
-      threshold: 0.01,
-    }
+    { root: container.value, rootMargin: "300px 0px", threshold: 0.01 }
   );
-
-  const loadImage = (img: HTMLImageElement) => {
-    const idx = Number(img.dataset.index);
-    if (!loadedImages.value.has(idx)) {
-      img.src =
-        img.dataset.src || img.dataset.fallback || "/images/no-image.png";
-      loadedImages.value.add(idx);
-      observer.unobserve(img);
-    }
-  };
 };
 
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement;
-  console.error("Image load error:", img.dataset.src);
-
-  if (img.dataset.fallback) {
-    img.src = img.dataset.fallback;
+  const fallback = img.dataset.fallback;
+  if (fallback) {
+    img.src = fallback;
     img.onerror = () => {
       img.src = "/images/no-image.png";
-      img.onerror = null;
     };
   } else {
     img.src = "/images/no-image.png";
@@ -150,12 +124,8 @@ const handleImageError = (event: Event) => {
 
 onMounted(() => {
   setupLazyLoading();
-<<<<<<< HEAD
-  // Preload first 3 items in THIS gallery
-=======
   startAutoScroll();
 
->>>>>>> b64f4ef (Residencia)
   const firstThree = container.value?.querySelectorAll(
     '[data-index="0"], [data-index="1"], [data-index="2"]'
   );
@@ -169,9 +139,6 @@ onMounted(() => {
   images?.forEach((img) => observer.observe(img));
 });
 
-<<<<<<< HEAD
-// Add cleanup in onBeforeUnmount
-=======
 const handleMouseEnter = () => {
   stopAutoScroll();
   if (!container.value) return;
@@ -186,19 +153,10 @@ const handleMouseLeave = () => {
   });
 };
 
->>>>>>> b64f4ef (Residencia)
 onBeforeUnmount(() => {
   stopAutoScroll();
   observer?.disconnect();
-  loadedImages.value.clear();
-  container.value = null;
 });
-<<<<<<< HEAD
-</script>
-
-<template>
-  <div class="gallery-container" @wheel.passive="handleWheel" ref="container">
-=======
 
 defineExpose({ startAutoScroll, stopAutoScroll });
 </script>
@@ -211,7 +169,6 @@ defineExpose({ startAutoScroll, stopAutoScroll });
     @mouseleave="handleMouseLeave"
     ref="container"
   >
->>>>>>> b64f4ef (Residencia)
     <div class="items-container">
       <div
         v-for="(item, index) in items"
@@ -222,16 +179,10 @@ defineExpose({ startAutoScroll, stopAutoScroll });
         <img
           :data-src="item.image"
           :data-fallback="item.fallback"
-          :data-srcset="item.srcset"
-          :data-sizes="item.sizes"
-          :width="item.width"
-          :height="item.height"
-          :alt="item.alt"
           :data-index="index"
+          :alt="item.alt"
           @error="handleImageError"
           class="gallery-image lazy-load"
-          loading="lazy"
-          decoding="async"
         />
       </div>
     </div>
@@ -241,7 +192,7 @@ defineExpose({ startAutoScroll, stopAutoScroll });
 <style lang="less" scoped>
 .gallery-container {
   will-change: scroll-position;
-  contain: layout paint style;
+  contain: strict;
   content-visibility: auto;
   height: 100vh;
   width: 100%;
@@ -250,7 +201,7 @@ defineExpose({ startAutoScroll, stopAutoScroll });
   scroll-behavior: smooth;
   transition: scroll-top 3s ease-in-out;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  -webkit0overflow-scrolling: touch;
 
   /* Hide scrollbar */
   scrollbar-width: none; /* Firefox */
@@ -266,15 +217,8 @@ defineExpose({ startAutoScroll, stopAutoScroll });
     .gallery-item {
       transition: transform 1.5s ease-in-out;
       image-rendering: -webkit-optimize-contrast;
-<<<<<<< HEAD
-      content-visibility: auto;
-      contain-intrinsic-height: 30vh;
-      width: 100%;
-      height: 30vh; /* Show 3 items at a time */
-=======
       width: 100%;
       height: 33.334vh; /* Show 3 items at a time */
->>>>>>> b64f4ef (Residencia)
       scroll-snap-align: start;
       position: relative;
       display: flex;
@@ -283,12 +227,6 @@ defineExpose({ startAutoScroll, stopAutoScroll });
       margin: 0;
       padding: 0;
       border-bottom: 1px solid #ddd;
-
-      .gallery-title {
-        font-size: 0.7rem;
-        text-align: center;
-        height: 5vh;
-      }
 
       .gallery-image {
         width: 100%;
@@ -323,17 +261,6 @@ defineExpose({ startAutoScroll, stopAutoScroll });
           &[src] {
             filter: none;
           }
-
-          &:not([src]) {
-            background: #f0f0f0
-              url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path fill="%23ccc" d="M73 50c0-12.7-10.3-23-23-23S27 37.3 27 50m3.9 0c0-10.5 8.5-19.1 19.1-19.1S69.1 39.5 69.1 50"/></svg>')
-              no-repeat center;
-            background-size: 40px;
-          }
-        }
-
-        &:nth-child(-n + 3) {
-          content-visibility: visible;
         }
       }
 

@@ -2,9 +2,6 @@
 import { ref } from "vue";
 import VerticalGallery from "@/components/VerticalGallery.vue";
 import { useImageLoader } from "@/composables/useImageLoader";
-<<<<<<< HEAD
-import { useHead } from "unhead";
-=======
 import GalleryModal from "@/components/GalleryModal.vue";
 
 interface GalleryItem {
@@ -17,7 +14,6 @@ interface Gallery {
   title: string;
   description: string;
 }
->>>>>>> b64f4ef (Residencia)
 
 const { generateGallery } = useImageLoader();
 const galleries = ref([
@@ -72,23 +68,6 @@ const galleries = ref([
     description: "Descripción de la residencia",
   },
 ]);
-<<<<<<< HEAD
-
-// Add this after galleries initialization
-
-useHead({
-  link: galleries.value.flatMap((gallery, index) =>
-    gallery.items.slice(0, 3).map((item) => ({
-      rel: "preload",
-      as: "image",
-      href: item.image,
-      imagesrcset: item.srcset,
-      imagesizes: item.sizes,
-      type: "image/webp",
-    }))
-  ),
-});
-=======
 const modal = ref<InstanceType<typeof GalleryModal> | null>(null);
 const galleryRef = ref<InstanceType<typeof VerticalGallery> | null>(null);
 const selectedImage = ref("");
@@ -106,7 +85,6 @@ const selectGallery = (gallery: Gallery) => {
   selectedTitle.value = gallery.title;
   selectedDescription.value = gallery.description;
 };
->>>>>>> b64f4ef (Residencia)
 </script>
 
 <template>
