@@ -15,8 +15,8 @@ const isMobile = () => {
 </script>
 
 <template>
-  <Header v-if="!isMobile" />
-  <RouterView v-if="!isMobile" />
+  <Header v-if="!isMobile()" />
+  <RouterView v-if="!isMobile()" />
   <Mobile v-else />
 </template>
 
