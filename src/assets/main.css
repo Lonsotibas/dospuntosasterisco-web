@@ -1,6 +1,7 @@
 @import "./base.css";
 
 #app {
+  user-select: none;
   height: 100vh;
   margin: 0 auto;
   padding: 0;

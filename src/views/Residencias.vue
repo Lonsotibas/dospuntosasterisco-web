@@ -64,8 +64,8 @@ const galleries = ref([
   },
   {
     items: generateGallery(5, 13),
-    title: "Residencia técnica NAVE - Apertura ",
-    description: "Descripción de la residencia",
+    title: "Residencia ténica NAVE - Apertura ",
+    description: "",
   },
 ]);
 const modal = ref<InstanceType<typeof GalleryModal> | null>(null);
@@ -74,7 +74,6 @@ const selectedImage = ref("");
 const selectedTitle = ref("");
 const selectedDescription = ref("");
 
-// When clicking a gallery item:
 const openModal = (item: GalleryItem) => {
   selectedImage.value = item.image;
   galleryRef.value?.stopAutoScroll();
