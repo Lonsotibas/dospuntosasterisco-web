@@ -59,7 +59,7 @@ const startAutoScroll = () => {
   };
   autoScrollInterval.value = setTimeout(
     scrollWithDelay,
-    1500 + Math.random() * 1000
+    500 + Math.random() * 500
   );
 };
 
