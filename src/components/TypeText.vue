@@ -71,13 +71,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="typewriter left">
+  <div v-show="leftText.length > 0" class="typewriter left">
     <span>
       {{ leftText }}
     </span>
     <span class="cursor"></span>
   </div>
-  <div class="typewriter right">
+  <div v-show="rightText.length > 0" class="typewriter right">
     <span>
       {{ rightText }}
     </span>
@@ -92,25 +92,52 @@ onMounted(() => {
   font-size: 1.4rem;
   line-height: 1.6;
   top: 20vh;
-  color: var(--color-text);
-  background: rgba(19, 19, 22, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 1rem 1.25rem;
-  border: 1px solid var(--color-border);
+  color: var(--black);
+  font-weight: 600;
+  padding: 0.9rem 1.1rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 
   .cursor {
-    border-right: 0.1em solid var(--tropical-indigo);
+    border-right: 0.12em solid var(--tropical-indigo);
     animation: blink 1s step-end infinite;
   }
 
   &.left {
     left: 5vw;
+    background: #61988e;
+    color: var(--white);
+    border-radius: 4px 18px 18px 18px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -9px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 9px 9px 0;
+      border-color: transparent #61988e transparent transparent;
+    }
   }
 
   &.right {
     right: 5vw;
     text-align: right;
+    background: #ffbc42;
+    border-radius: 18px 4px 18px 18px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: -9px;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 9px 9px 0 0;
+      border-color: #ffbc42 transparent transparent transparent;
+    }
   }
 
   @keyframes blink {

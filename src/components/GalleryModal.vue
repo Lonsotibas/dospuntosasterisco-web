@@ -112,7 +112,7 @@ defineExpose({ openModal, closeModal });
 </template>
 
 <style scoped lang="less">
-@primary-color: var(--tropical-indigo); // Grindr's blue accent color
+@primary-color: var(--accent);
 @dark-bg: var(--black); // Dark background
 @text-color: #ffffff; // White text
 

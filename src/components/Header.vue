@@ -56,10 +56,10 @@ import { RouterLink } from "vue-router";
   }
 }
 .menu-item-active {
-  color: var(--tropical-indigo);
+  color: var(--accent);
 
   &:hover {
-    color: var(--tropical-indigo);
+    color: var(--accent);
   }
 }
 </style>
