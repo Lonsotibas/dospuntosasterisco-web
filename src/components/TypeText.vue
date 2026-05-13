@@ -66,7 +66,7 @@ const deteleText = () => {
 };
 
 onMounted(() => {
-  setTimeout(typeWriter, 1000);
+  setTimeout(typeWriter, 2000);
 });
 </script>
 
