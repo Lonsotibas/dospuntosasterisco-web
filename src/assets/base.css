@@ -1,59 +1,31 @@
-/* color palette from <https://github.com/vuejs/theme> */
-:root {
-  /* WHITE */
-  --white: #fff; /* white */
-  --white-soft: #f5f6f3; /* baby powder */
-  --white-mute: #e8ebe4; /* alabaster */
-  /* BLACK */
-  --black: #131316; /* night */
-  --black-soft: #2d2d34; /* raisin black */
-  --black-mute: #42424c; /* onyx */
+@font-face {
+  font-family: geo;
+  src: url(/fonts/Geo-Regular.ttf);
+}
 
-  /* OTHER */
+@font-face {
+  font-family: electrolize;
+  src: url(/fonts/Electrolize-Regular.ttf);
+}
+
+:root {
+  --white:      #ffffff;
+  --black:      #131316;
+  --black-soft: #1c1c20;
+  --black-mute: #2d2d34;
+
   --tropical-indigo: #9f9fed;
-  --jade: #5da271;
-  --old-rose: #b97375;
+  --tropical-indigo-dim: rgba(159, 159, 237, 0.45);
+  --tropical-indigo-faint: rgba(159, 159, 237, 0.12);
 
-  --divider-light-1: rgba(60, 60, 60, 0.29);
-  --divider-light-2: rgba(60, 60, 60, 0.12);
-  --divider-dark-1: rgba(84, 84, 84, 0.65);
-  --divider-dark-2: rgba(84, 84, 84, 0.48);
-
-  --text-light-1: var(--tropical-indigo);
-  --text-light-2: rgba(60, 60, 60, 0.66);
-  --text-dark-1: var(--white-mute);
-  --text-dark-2: rgba(235, 235, 235, 0.64);
-}
-
-/* semantic color variables for this project */
-:root {
-  --color-background: var(--white);
-  --color-background-soft: var(--white-soft);
-  --color-background-mute: var(--white-mute);
-
-  --color-border: var(--divider-light-2);
-  --color-border-hover: var(--divider-light-1);
-
-  --color-heading: var(--text-light-1);
-  --color-text: var(--text-light-1);
-
-  --section-gap: 160px;
-  --item-spacing: 2px; /* Adjust based on your design needs */
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: var(--black);
-    --color-background-soft: var(--black-soft);
-    --color-background-mute: var(--black-mute);
-
-    --color-border: var(--divider-dark-2);
-    --color-border-hover: var(--divider-dark-1);
-
-    --color-heading: var(--text-dark-1);
-    --color-text: var(--text-dark-1);
-    --item-spacing: 2px; /* Adjust based on your design needs */
-  }
+  /* Always dark — the site never uses a light theme */
+  --color-background:      #131316;
+  --color-background-soft: #1c1c20;
+  --color-background-mute: #2d2d34;
+  --color-text:            rgba(232, 235, 228, 0.88);
+  --color-text-dim:        rgba(232, 235, 228, 0.45);
+  --color-border:          rgba(159, 159, 237, 0.1);
+  --color-border-hover:    rgba(159, 159, 237, 0.25);
 }
 
 *,
@@ -64,19 +36,13 @@
   font-weight: normal;
 }
 
-@font-face {
-  font-family: geo;
-  src: url(/fonts/Geo-Regular.ttf);
-}
-
 body {
-  font-family: geo;
-  font-size: 1.2em;
+  font-family: geo, system-ui, sans-serif;
+  font-size: 16px;
   min-height: 100vh;
+  overflow: hidden;
   color: var(--color-text);
   background: var(--color-background);
-  transition: color 0.5s, background-color 0.5s;
-  line-height: 1.6;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

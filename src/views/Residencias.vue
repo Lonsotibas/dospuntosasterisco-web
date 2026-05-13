@@ -46,14 +46,12 @@ const galleries = ref([
 ]);
 
 const modal = ref<InstanceType<typeof GalleryModal> | null>(null);
-const galleryRef = ref<InstanceType<typeof VerticalGallery> | null>(null);
 const selectedImage = ref("");
 const selectedTitle = ref("");
 const selectedDescription = ref("");
 
 const openModal = (item: GalleryItem) => {
   selectedImage.value = item.image;
-  galleryRef.value?.stopAutoScroll();
   modal.value?.openModal();
 };
 
@@ -65,13 +63,18 @@ const selectGallery = (gallery: Gallery) => {
 
 <template>
   <div class="residencias-container">
-    <VerticalGallery
+    <div
       v-for="(gallery, index) in galleries"
       :key="index"
-      :items="gallery.items"
-      @open-modal="openModal"
+      class="gallery-column"
       @click="selectGallery(gallery)"
-    />
+    >
+      <VerticalGallery
+        :items="gallery.items"
+        @open-modal="openModal"
+      />
+      <div class="gallery-label">{{ gallery.title }}</div>
+    </div>
   </div>
   <GalleryModal
     ref="modal"
@@ -83,21 +86,49 @@ const selectGallery = (gallery: Gallery) => {
 
 <style lang="less" scoped>
 .residencias-container {
-  will-change: contents;
-  backface-visibility: hidden;
   display: flex;
   overflow: hidden;
   height: 95vh;
-  margin: 0 15vw;
+  /* width = 95vh makes each cell exactly square (95vh/3 wide × 95vh/3 tall) */
+  width: 95vh;
+  max-width: 100%;
+  margin: 0 auto;
 
-  > * {
+  .gallery-column {
     flex: 1;
-    width: 20%;
-    border-right: 2px solid #000;
+    position: relative;
+    border-right: 1px solid rgba(255, 255, 255, 0.12);
 
     &:last-child {
       border-right: none;
     }
+
+    &:hover .gallery-label {
+      color: var(--color-text);
+      border-top-color: var(--color-border-hover);
+      background: rgba(19, 19, 22, 0.85);
+    }
+  }
+
+  .gallery-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.6rem 0.75rem;
+    font-family: electrolize, system-ui, sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--color-text-dim);
+    background: rgba(19, 19, 22, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-top: 1px solid var(--color-border);
+    transition: color 0.25s ease, border-top-color 0.25s ease, background 0.25s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 </style>

@@ -88,12 +88,19 @@ onMounted(() => {
 <style scoped lang="less">
 .typewriter {
   position: absolute;
-  width: 15vw;
-  font-size: 1.1em;
-  top: 25vh;
+  width: 18vw;
+  font-size: 1.4rem;
+  line-height: 1.6;
+  top: 20vh;
+  color: var(--color-text);
+  background: rgba(19, 19, 22, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-border);
 
   .cursor {
-    border-right: 0.1em solid #fff;
+    border-right: 0.1em solid var(--tropical-indigo);
     animation: blink 1s step-end infinite;
   }
 
@@ -112,7 +119,7 @@ onMounted(() => {
       border-color: transparent;
     }
     50% {
-      border-color: #fff;
+      border-color: var(--tropical-indigo);
     }
   }
 }

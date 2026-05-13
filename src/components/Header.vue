@@ -20,36 +20,46 @@ import { RouterLink } from "vue-router";
 </template>
 
 <style scoped>
-@font-face {
-  font-family: electrolize;
-  src: url(/fonts/Electrolize-Regular.ttf);
-}
 #header {
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(19, 19, 22, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-border);
   padding: 0 5vw;
   height: 5vh;
-  font-family: electrolize;
-  font-size: 0.9rem;
+  font-family: electrolize, system-ui, sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
   display: flex;
   justify-content: space-between;
 }
 #header-title {
   display: inline-flex;
   align-items: center;
+  color: var(--color-text-dim);
 }
 #header-menu {
   display: inline-flex;
   justify-content: space-evenly;
   align-items: center;
+  gap: 2rem;
 }
 .header-menu-item {
-  padding: 0 2px !important;
   text-decoration: none;
-  color: var(--color-text);
+  color: var(--color-text-dim);
   display: inline-flex;
-  padding: 5px;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: var(--color-text);
+  }
 }
 .menu-item-active {
   color: var(--tropical-indigo);
+
+  &:hover {
+    color: var(--tropical-indigo);
+  }
 }
 </style>

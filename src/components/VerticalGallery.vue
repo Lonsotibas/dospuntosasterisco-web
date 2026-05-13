@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import gsap from "gsap";
+import { computed, ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 
 interface GalleryItem {
   image: string;
@@ -15,50 +16,64 @@ const emit = defineEmits<{
   "open-modal": [item: GalleryItem];
 }>();
 
+// Clone the last 3 items at the front and first 3 at the back so the scroll
+// can flow past either boundary and then silently teleport to real content.
+const CLONE_COUNT = 3;
+
+const clonedItems = computed(() => [
+  ...props.items.slice(-CLONE_COUNT), // tail clones  (indices 0..2)
+  ...props.items,                      // real items   (indices 3..N+2)
+  ...props.items.slice(0, CLONE_COUNT),// head clones  (indices N+3..N+5)
+]);
+
 const container = ref<HTMLElement | null>(null);
+const currentPage = ref(CLONE_COUNT); // start at the first real item, past the tail clones
 const autoScrollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
-const scrollDirection = ref<"up" | "down">(Math.random() < 0.5 ? "up" : "down");
 const loadedImages = ref(new Set<number>());
 let observer: IntersectionObserver;
-
-// Prevents auto-scroll from firing while a smooth scroll is still running
-let isScrolling = false;
-let scrollEndTimer: ReturnType<typeof setTimeout>;
-
-const onScrollActivity = () => {
-  isScrolling = true;
-  clearTimeout(scrollEndTimer);
-  scrollEndTimer = setTimeout(() => {
-    isScrolling = false;
-  }, 200);
-};
+let scrollTween: gsap.core.Tween | null = null;
 
 const itemHeight = () =>
   container.value ? container.value.offsetHeight / 3 : 0;
 
-const autoScroll = () => {
-  if (!container.value || isScrolling) return;
+const maxPage = () => clonedItems.value.length - CLONE_COUNT;
 
-  const h = itemHeight();
-  const currentScroll = container.value.scrollTop;
-  const maxScroll = container.value.scrollHeight - container.value.clientHeight;
+// After any scroll animation, if we landed in a clone zone, jump instantly
+// to the visually identical real position.
+const checkAndLoop = () => {
+  if (!container.value) return;
+  const N = props.items.length;
 
-  // Step exactly one item so we always land on a snap point
-  let nextScroll =
-    currentScroll + (scrollDirection.value === "down" ? h : -h);
-
-  if (nextScroll >= maxScroll) {
-    nextScroll = maxScroll;
-    scrollDirection.value = "up";
-  } else if (nextScroll <= 0) {
-    nextScroll = 0;
-    scrollDirection.value = "down";
+  if (currentPage.value >= N + CLONE_COUNT) {
+    // Landed in head clone zone → same content as real first page
+    currentPage.value = CLONE_COUNT;
+    container.value.scrollTop = currentPage.value * itemHeight();
+  } else if (currentPage.value <= 0) {
+    // Landed in tail clone zone → same content as real last page
+    currentPage.value = N;
+    container.value.scrollTop = currentPage.value * itemHeight();
   }
-
-  container.value.scrollTo({ top: nextScroll, behavior: "smooth" });
 };
 
-const randomDelay = () => Math.max(2500, 3500 + Math.random() * 1500);
+const scrollToPage = (page: number, duration = 1.2) => {
+  if (!container.value) return;
+  const target = Math.max(0, Math.min(Math.round(page), maxPage()));
+  currentPage.value = target;
+  scrollTween?.kill();
+  scrollTween = gsap.to(container.value, {
+    scrollTop: target * itemHeight(),
+    duration,
+    ease: "power2.inOut",
+    onComplete: checkAndLoop,
+  });
+};
+
+const autoScroll = () => {
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  scrollToPage(currentPage.value + direction);
+};
+
+const randomDelay = () => 1000 + Math.random() * 4000; // 1 – 5 s
 
 const startAutoScroll = () => {
   if (autoScrollTimer.value) return;
@@ -76,20 +91,9 @@ const stopAutoScroll = () => {
 };
 
 const handleWheel = (event: WheelEvent) => {
-  if (!container.value) return;
   event.preventDefault();
-
-  const delta = Math.sign(event.deltaY);
-  const h = itemHeight();
-  const targetScroll = container.value.scrollTop + delta * h;
-
-  container.value.scrollTo({
-    top: Math.max(
-      0,
-      Math.min(targetScroll, container.value.scrollHeight - container.value.clientHeight)
-    ),
-    behavior: "smooth",
-  });
+  if (scrollTween?.isActive()) return;
+  scrollToPage(currentPage.value + Math.sign(event.deltaY), 0.5);
 };
 
 const setupLazyLoading = () => {
@@ -100,13 +104,13 @@ const setupLazyLoading = () => {
         const img = entry.target as HTMLImageElement;
         const idx = Number(img.dataset.index);
         if (!loadedImages.value.has(idx)) {
-          img.src = img.dataset.src || img.dataset.fallback || "/images/no-image.png";
+          img.src =
+            img.dataset.src || img.dataset.fallback || "/images/no-image.png";
           loadedImages.value.add(idx);
         }
         observer.unobserve(img);
       });
     },
-    // 600px look-ahead so the next two items are loaded before they appear
     { root: container.value, rootMargin: "600px 0px", threshold: 0.01 }
   );
 };
@@ -122,38 +126,48 @@ const handleImageError = (event: Event) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick();
   setupLazyLoading();
 
-  // Eagerly load the first 5 images so they appear instantly
-  container.value
-    ?.querySelectorAll<HTMLImageElement>(".lazy-load")
-    .forEach((img) => {
-      const idx = Number(img.dataset.index);
-      if (idx < 5) {
-        img.src = img.dataset.src!;
-        loadedImages.value.add(idx);
-      } else {
-        observer.observe(img);
-      }
-    });
+  const total = clonedItems.value.length;
+  container.value?.querySelectorAll<HTMLImageElement>(".lazy-load").forEach((img) => {
+    const idx = Number(img.dataset.index);
+    // Eagerly load the clone buffers + a few real items at both ends so
+    // the wrap-around never shows unloaded images.
+    const nearStart = idx < CLONE_COUNT * 2;
+    const nearEnd = idx >= total - CLONE_COUNT * 2;
+    if (nearStart || nearEnd) {
+      img.src = img.dataset.src!;
+      loadedImages.value.add(idx);
+    } else {
+      observer.observe(img);
+    }
+  });
 
-  container.value?.addEventListener("scroll", onScrollActivity, { passive: true });
+  // Position scroll at real first item (past the tail clones).
+  if (container.value) {
+    container.value.scrollTop = CLONE_COUNT * itemHeight();
+  }
+
   startAutoScroll();
 });
 
 const handleMouseEnter = () => {
   stopAutoScroll();
+  scrollTween?.kill();
 };
 
 const handleMouseLeave = () => {
+  if (container.value) {
+    currentPage.value = Math.round(container.value.scrollTop / itemHeight());
+  }
   startAutoScroll();
 };
 
 onBeforeUnmount(() => {
   stopAutoScroll();
-  clearTimeout(scrollEndTimer);
-  container.value?.removeEventListener("scroll", onScrollActivity);
+  scrollTween?.kill();
   observer?.disconnect();
 });
 
@@ -170,7 +184,7 @@ defineExpose({ startAutoScroll, stopAutoScroll });
   >
     <div class="items-container">
       <div
-        v-for="(item, index) in items"
+        v-for="(item, index) in clonedItems"
         :key="index"
         class="gallery-item"
         @click="emit('open-modal', item)"
@@ -180,7 +194,6 @@ defineExpose({ startAutoScroll, stopAutoScroll });
           :data-fallback="item.fallback"
           :data-index="index"
           :alt="item.alt"
-          decoding="async"
           @error="handleImageError"
           class="gallery-image lazy-load"
         />
@@ -191,43 +204,32 @@ defineExpose({ startAutoScroll, stopAutoScroll });
 
 <style lang="less" scoped>
 .gallery-container {
-  will-change: scroll-position;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }
 
   .items-container {
-    backface-visibility: hidden;
-    padding: 0;
-    margin: 0;
-
     .gallery-item {
+      box-sizing: border-box;
       width: 100%;
-      height: 33.334vh;
-      scroll-snap-align: start;
+      height: calc(95vh / 3);
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0;
-      padding: 0;
-      border-bottom: 1px solid #ddd;
+      overflow: hidden;
+
+      & + & {
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
 
       .gallery-image {
-        will-change: transform;
         width: 100%;
         height: 100%;
         object-fit: cover;
         position: absolute;
-        transition: filter 0.4s ease, opacity 0.4s ease;
+        inset: 0;
 
         &:hover {
           cursor: pointer;
@@ -242,11 +244,14 @@ defineExpose({ startAutoScroll, stopAutoScroll });
               background-position: 200% 0%;
             }
           }
-          background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+          background: linear-gradient(
+            90deg,
+            #1a1a1a 25%,
+            #2a2a2a 50%,
+            #1a1a1a 75%
+          );
           background-size: 200% 100%;
           animation: shimmer 1.4s ease-in-out infinite;
-          filter: blur(4px);
-          opacity: 0.6;
         }
       }
     }
