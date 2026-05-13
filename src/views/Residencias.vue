@@ -17,34 +17,10 @@ interface Gallery {
 
 const { generateGallery } = useImageLoader();
 const galleries = ref([
-  //{
-  //  items: generateGallery(1, 3),
-  //  title: "CiberAfecciones, tecnopoéticas para un hackeo identitario - NAVE",
-  //  description: `
-  //      Durante la residencia compartimos con la comunidad
-  //      circundante a NAVE el laboratorio Ciber-Afecciones: tecnopoéticas para un
-  //      hackeo identitario, espacio en el que revisamos conceptos y referencias de la
-  //      cibernética, la ciencia ficción y la programación.
-  // `,
-  //},
-  //{
-  //  items: generateGallery(2, 9),
-  //  title: "Residencia de creación NAVE - Apertura de proceso ",
-  //  description: `
-  //      Colaboración junto a Matías González en el
-  //      marco de la residencia de creación e investigación :* (dospuntos asterisco)
-  //      de Centro NAVE (2023). Allí se desarrolla de un clon de la app de citas Grindr
-  //      -que nombramos Moledor- , se recopila la data para la investigación teórica
-  //      y la puesta en escena. Al finalizar la residencia tuvimos una apertura de proceso abierta al público en la que pudimos compartir algunos aspectos de la
-  //      investigación teórica.
-  //    `,
-  //},
   {
     items: generateGallery(3, 6),
     title: "Registro Lab dispositivos especuativos",
-    description: `
-
-      `,
+    description: ``,
   },
   {
     items: generateGallery(4, 16),
@@ -64,10 +40,11 @@ const galleries = ref([
   },
   {
     items: generateGallery(5, 13),
-    title: "Residencia ténica NAVE - Apertura ",
+    title: "Residencia ténica NAVE - Apertura ",
     description: "",
   },
 ]);
+
 const modal = ref<InstanceType<typeof GalleryModal> | null>(null);
 const galleryRef = ref<InstanceType<typeof VerticalGallery> | null>(null);
 const selectedImage = ref("");
@@ -92,7 +69,7 @@ const selectGallery = (gallery: Gallery) => {
       v-for="(gallery, index) in galleries"
       :key="index"
       :items="gallery.items"
-      :openModal="openModal"
+      @open-modal="openModal"
       @click="selectGallery(gallery)"
     />
   </div>

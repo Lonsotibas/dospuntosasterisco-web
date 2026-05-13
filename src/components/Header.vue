@@ -15,13 +15,6 @@ import { RouterLink } from "vue-router";
         activeClass="menu-item-active"
         >RESIDENCIAS</RouterLink
       >
-      <!-- <li class="header-menu-item">INSUMOS</li> -->
-      <!-- <RouterLink -->
-      <!--   to="/contacto" -->
-      <!--   class="header-menu-item" -->
-      <!--   activeClass="menu-item-active" -->
-      <!--   >CONTACTO</RouterLink -->
-      <!-- > -->
     </ol>
   </nav>
 </template>

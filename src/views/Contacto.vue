@@ -103,7 +103,6 @@ import { Icon } from "@iconify/vue/dist/iconify.js";
 
     .member-description {
       height: 15rem;
-      font-size: 1.2rem;
       text-align: justify;
       overflow-y: auto;
       scrollbar-width: none;
@@ -146,10 +145,11 @@ import { Icon } from "@iconify/vue/dist/iconify.js";
     }
   }
 
-  .team-contact {
-    width: 100vw;
-    font-size: 1.5rem;
-    color: fade(#ffffff, 80%);
-  }
+}
+
+.team-contact {
+  width: 100vw;
+  font-size: 1.5rem;
+  color: fade(#ffffff, 80%);
 }
 </style>

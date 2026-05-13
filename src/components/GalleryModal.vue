@@ -2,20 +2,11 @@
 import { ref, nextTick, onUnmounted, onBeforeUnmount, onMounted } from "vue";
 import { Icon } from "@iconify/vue/dist/iconify.js";
 
-const props = defineProps({
-  image: {
-    type: String,
-    required: true,
-  },
-  title: {
-    type: String,
-    required: true,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-});
+const props = defineProps<{
+  image: string;
+  title: string;
+  description: string;
+}>();
 
 const emit = defineEmits(["close"]);
 
@@ -64,15 +55,17 @@ const closeModal = () => {
   window.removeEventListener("resize", checkScrollStatus);
 };
 
+const handleKey = (e: KeyboardEvent) => {
+  if (e.key === "Escape") closeModal();
+};
+
 onMounted(() => {
   resizeObserver.value = new ResizeObserver(checkScrollStatus);
-  const handleKey = (e: KeyboardEvent) => {
-    if (e.key === "Escape") closeModal();
-  };
   window.addEventListener("keydown", handleKey);
-  onBeforeUnmount(() => {
-    window.removeEventListener("keydown", handleKey);
-  });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("keydown", handleKey);
 });
 
 onUnmounted(() => {

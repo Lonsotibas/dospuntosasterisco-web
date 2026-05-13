@@ -32,7 +32,7 @@ const typeWriter = () => {
     leftText.value === currentText.value ||
     rightText.value === currentText.value
   ) {
-    previousCharIndex.value = currentCharIndex.value;
+    previousCharIndex.value = currentCharIndex.value - 1;
     previousText.value = currentText.value;
     setTimeout(deteleText, 5000);
     isLeft.value = !isLeft.value;

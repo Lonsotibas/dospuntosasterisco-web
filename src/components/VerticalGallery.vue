@@ -9,81 +9,84 @@ interface GalleryItem {
 
 const props = defineProps<{
   items: GalleryItem[];
-  openModal: (item: GalleryItem) => void;
+}>();
+
+const emit = defineEmits<{
+  "open-modal": [item: GalleryItem];
 }>();
 
 const container = ref<HTMLElement | null>(null);
-const autoScrollInterval = ref<NodeJS.Timeout | null>(null);
+const autoScrollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const scrollDirection = ref<"up" | "down">(Math.random() < 0.5 ? "up" : "down");
-const scrollDelay = ref(3000 + Math.random() * 1000);
-let observer: IntersectionObserver;
 const loadedImages = ref(new Set<number>());
+let observer: IntersectionObserver;
+
+// Prevents auto-scroll from firing while a smooth scroll is still running
+let isScrolling = false;
+let scrollEndTimer: ReturnType<typeof setTimeout>;
+
+const onScrollActivity = () => {
+  isScrolling = true;
+  clearTimeout(scrollEndTimer);
+  scrollEndTimer = setTimeout(() => {
+    isScrolling = false;
+  }, 200);
+};
+
+const itemHeight = () =>
+  container.value ? container.value.offsetHeight / 3 : 0;
 
 const autoScroll = () => {
-  if (!container.value) return;
+  if (!container.value || isScrolling) return;
 
-  const itemHeight = container.value.offsetHeight / 3;
+  const h = itemHeight();
   const currentScroll = container.value.scrollTop;
   const maxScroll = container.value.scrollHeight - container.value.clientHeight;
 
+  // Step exactly one item so we always land on a snap point
   let nextScroll =
-    currentScroll +
-    (scrollDirection.value === "down" ? itemHeight * 0.8 : -itemHeight * 0.8);
-  let newDirection = scrollDirection.value;
+    currentScroll + (scrollDirection.value === "down" ? h : -h);
 
   if (nextScroll >= maxScroll) {
     nextScroll = maxScroll;
-    newDirection = "up";
+    scrollDirection.value = "up";
   } else if (nextScroll <= 0) {
     nextScroll = 0;
-    newDirection = "down";
+    scrollDirection.value = "down";
   }
 
-  const variation = Math.random() * 1500 - 250;
-  const efectiveDelay = Math.max(2500, 4000 + variation);
-
-  container.value.scrollTo({
-    top: nextScroll,
-    behavior: "smooth",
-  });
-
-  scrollDirection.value = newDirection;
-  scrollDelay.value = efectiveDelay;
+  container.value.scrollTo({ top: nextScroll, behavior: "smooth" });
 };
 
+const randomDelay = () => Math.max(2500, 3500 + Math.random() * 1500);
+
 const startAutoScroll = () => {
-  if (autoScrollInterval.value) return;
-  const scrollWithDelay = () => {
+  if (autoScrollTimer.value) return;
+  const tick = () => {
     autoScroll();
-    autoScrollInterval.value = setTimeout(scrollWithDelay, scrollDelay.value);
+    autoScrollTimer.value = setTimeout(tick, randomDelay());
   };
-  autoScrollInterval.value = setTimeout(
-    scrollWithDelay,
-    500 + Math.random() * 500
-  );
+  autoScrollTimer.value = setTimeout(tick, 500 + Math.random() * 500);
 };
 
 const stopAutoScroll = () => {
-  if (!autoScrollInterval.value) return;
-  clearTimeout(autoScrollInterval.value);
-  autoScrollInterval.value = null;
+  if (!autoScrollTimer.value) return;
+  clearTimeout(autoScrollTimer.value);
+  autoScrollTimer.value = null;
 };
 
 const handleWheel = (event: WheelEvent) => {
   if (!container.value) return;
-
   event.preventDefault();
+
   const delta = Math.sign(event.deltaY);
-  const itemHeight = container.value.offsetHeight / 3;
-  const targetScroll = container.value.scrollTop + delta * itemHeight;
+  const h = itemHeight();
+  const targetScroll = container.value.scrollTop + delta * h;
 
   container.value.scrollTo({
     top: Math.max(
       0,
-      Math.min(
-        targetScroll,
-        container.value.scrollHeight - container.value.clientHeight
-      )
+      Math.min(targetScroll, container.value.scrollHeight - container.value.clientHeight)
     ),
     behavior: "smooth",
   });
@@ -93,68 +96,64 @@ const setupLazyLoading = () => {
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const img = entry.target as HTMLImageElement;
-          const idx = Number(img.dataset.index);
-          if (!loadedImages.value.has(idx)) {
-            img.src =
-              img.dataset.src || img.dataset.fallback || "/images/no-image.png";
-            loadedImages.value.add(idx);
-          }
-          observer.unobserve(img);
+        if (!entry.isIntersecting) return;
+        const img = entry.target as HTMLImageElement;
+        const idx = Number(img.dataset.index);
+        if (!loadedImages.value.has(idx)) {
+          img.src = img.dataset.src || img.dataset.fallback || "/images/no-image.png";
+          loadedImages.value.add(idx);
         }
+        observer.unobserve(img);
       });
     },
-    { root: container.value, rootMargin: "300px 0px", threshold: 0.01 }
+    // 600px look-ahead so the next two items are loaded before they appear
+    { root: container.value, rootMargin: "600px 0px", threshold: 0.01 }
   );
 };
 
 const handleImageError = (event: Event) => {
   const img = event.target as HTMLImageElement;
   const fallback = img.dataset.fallback;
+  img.src = fallback || "/images/no-image.png";
   if (fallback) {
-    img.src = fallback;
     img.onerror = () => {
       img.src = "/images/no-image.png";
     };
-  } else {
-    img.src = "/images/no-image.png";
   }
 };
 
 onMounted(() => {
   setupLazyLoading();
+
+  // Eagerly load the first 5 images so they appear instantly
+  container.value
+    ?.querySelectorAll<HTMLImageElement>(".lazy-load")
+    .forEach((img) => {
+      const idx = Number(img.dataset.index);
+      if (idx < 5) {
+        img.src = img.dataset.src!;
+        loadedImages.value.add(idx);
+      } else {
+        observer.observe(img);
+      }
+    });
+
+  container.value?.addEventListener("scroll", onScrollActivity, { passive: true });
   startAutoScroll();
-
-  const firstThree = container.value?.querySelectorAll(
-    '[data-index="0"], [data-index="1"], [data-index="2"]'
-  );
-  firstThree?.forEach((img) => {
-    const target = img as HTMLImageElement;
-    target.src = target.dataset.src!;
-    loadedImages.value.add(Number(target.dataset.index));
-  });
-
-  const images = container.value?.querySelectorAll(".lazy-load");
-  images?.forEach((img) => observer.observe(img));
 });
 
 const handleMouseEnter = () => {
   stopAutoScroll();
-  if (!container.value) return;
-  container.value.dataset.lastScrollTop = container.value.scrollTop.toString();
 };
 
 const handleMouseLeave = () => {
-  setTimeout(() => {
-    if (!container.value || !container.value.dataset.lastScroll) return;
-    container.value.scrollTop = Number(container.value.dataset.lastScrollTop);
-    startAutoScroll();
-  });
+  startAutoScroll();
 };
 
 onBeforeUnmount(() => {
   stopAutoScroll();
+  clearTimeout(scrollEndTimer);
+  container.value?.removeEventListener("scroll", onScrollActivity);
   observer?.disconnect();
 });
 
@@ -164,7 +163,7 @@ defineExpose({ startAutoScroll, stopAutoScroll });
 <template>
   <div
     class="gallery-container"
-    @wheel="handleWheel"
+    @wheel.prevent="handleWheel"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
     ref="container"
@@ -174,13 +173,14 @@ defineExpose({ startAutoScroll, stopAutoScroll });
         v-for="(item, index) in items"
         :key="index"
         class="gallery-item"
-        @click="openModal(item)"
+        @click="emit('open-modal', item)"
       >
         <img
           :data-src="item.image"
           :data-fallback="item.fallback"
           :data-index="index"
           :alt="item.alt"
+          decoding="async"
           @error="handleImageError"
           class="gallery-image lazy-load"
         />
@@ -192,21 +192,16 @@ defineExpose({ startAutoScroll, stopAutoScroll });
 <style lang="less" scoped>
 .gallery-container {
   will-change: scroll-position;
-  contain: strict;
-  content-visibility: auto;
   height: 100vh;
   width: 100%;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
-  transition: scroll-top 3s ease-in-out;
   overscroll-behavior: contain;
-  -webkit0overflow-scrolling: touch;
+  -webkit-overflow-scrolling: touch;
 
-  /* Hide scrollbar */
-  scrollbar-width: none; /* Firefox */
+  scrollbar-width: none;
   &::-webkit-scrollbar {
-    display: none; /* Chrome/Safari/Edge */
+    display: none;
   }
 
   .items-container {
@@ -215,10 +210,8 @@ defineExpose({ startAutoScroll, stopAutoScroll });
     margin: 0;
 
     .gallery-item {
-      transition: transform 1.5s ease-in-out;
-      image-rendering: -webkit-optimize-contrast;
       width: 100%;
-      height: 33.334vh; /* Show 3 items at a time */
+      height: 33.334vh;
       scroll-snap-align: start;
       position: relative;
       display: flex;
@@ -229,51 +222,32 @@ defineExpose({ startAutoScroll, stopAutoScroll });
       border-bottom: 1px solid #ddd;
 
       .gallery-image {
+        will-change: transform;
         width: 100%;
         height: 100%;
         object-fit: cover;
         position: absolute;
+        transition: filter 0.4s ease, opacity 0.4s ease;
 
         &:hover {
           cursor: pointer;
         }
 
-        &.lazy-load {
+        &.lazy-load:not([src]) {
           @keyframes shimmer {
             0% {
               background-position: -200% 0%;
             }
             100% {
-              background-position: -200% 0%;
+              background-position: 200% 0%;
             }
           }
-          background: linear-gradient(
-            90deg,
-            #f0f0f0 25%,
-            #e0e0e0 50%,
-            #f0f0f0 75%
-          );
-          background-size: 200% 200%;
-          animation: shimmer 1.2s infinite;
-          filter: blur(5px);
-          transition: filter 0.3s ease;
-
-          &[src] {
-            filter: none;
-          }
+          background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.4s ease-in-out infinite;
+          filter: blur(4px);
+          opacity: 0.6;
         }
-      }
-
-      .item-index {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 3rem;
-        font-weight: bold;
-        color: white;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        z-index: 1;
       }
     }
   }
