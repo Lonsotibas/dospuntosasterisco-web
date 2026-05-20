@@ -32,9 +32,16 @@ const autoScrollTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const loadedImages = ref(new Set<number>());
 let observer: IntersectionObserver;
 let scrollTween: gsap.core.Tween | null = null;
+let touchStartScrollTop = 0;
 
+const killScrollTween = () => {
+  scrollTween?.kill();
+  if (container.value) container.value.style.overflowY = '';
+};
+
+const itemsVisible = () => window.innerWidth <= 768 ? 2 : 3;
 const itemHeight = () =>
-  container.value ? container.value.offsetHeight / 3 : 0;
+  container.value ? container.value.offsetHeight / itemsVisible() : 0;
 
 const maxPage = () => clonedItems.value.length - CLONE_COUNT;
 
@@ -59,12 +66,18 @@ const scrollToPage = (page: number, duration = 1.2) => {
   if (!container.value) return;
   const target = Math.max(0, Math.min(Math.round(page), maxPage()));
   currentPage.value = target;
-  scrollTween?.kill();
-  scrollTween = gsap.to(container.value, {
+  killScrollTween();
+  const el = container.value;
+  // Freeze native scroll to kill iOS momentum before GSAP takes over.
+  el.style.overflowY = 'hidden';
+  scrollTween = gsap.to(el, {
     scrollTop: target * itemHeight(),
     duration,
     ease: "power2.inOut",
-    onComplete: checkAndLoop,
+    onComplete: () => {
+      checkAndLoop();
+      el.style.overflowY = '';
+    },
   });
 };
 
@@ -76,6 +89,7 @@ const autoScroll = () => {
 const randomDelay = () => 1000 + Math.random() * 4000; // 1 – 5 s
 
 const startAutoScroll = () => {
+  if (window.innerWidth <= 768) return;
   if (autoScrollTimer.value) return;
   const tick = () => {
     autoScroll();
@@ -155,7 +169,7 @@ onMounted(async () => {
 
 const handleMouseEnter = () => {
   stopAutoScroll();
-  scrollTween?.kill();
+  killScrollTween();
 };
 
 const handleMouseLeave = () => {
@@ -165,9 +179,29 @@ const handleMouseLeave = () => {
   startAutoScroll();
 };
 
+const handleTouchStart = () => {
+  stopAutoScroll();
+  killScrollTween();
+  touchStartScrollTop = container.value?.scrollTop ?? 0;
+};
+
+const handleTouchEnd = () => {
+  if (container.value) {
+    const h = itemHeight();
+    const basePage = Math.round(touchStartScrollTop / h);
+    const delta = container.value.scrollTop - touchStartScrollTop;
+    let target: number;
+    if (delta > 15) target = basePage + 1;
+    else if (delta < -15) target = basePage - 1;
+    else target = basePage;
+    scrollToPage(target, 0.45);
+  }
+  startAutoScroll();
+};
+
 onBeforeUnmount(() => {
   stopAutoScroll();
-  scrollTween?.kill();
+  killScrollTween();
   observer?.disconnect();
 });
 
@@ -180,6 +214,8 @@ defineExpose({ startAutoScroll, stopAutoScroll });
     @wheel.prevent="handleWheel"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    @touchstart="handleTouchStart"
+    @touchend="handleTouchEnd"
     ref="container"
   >
     <div class="items-container">
@@ -212,6 +248,11 @@ defineExpose({ startAutoScroll, stopAutoScroll });
     display: none;
   }
 
+  @media (max-width: 768px) {
+    touch-action: pan-y;
+    height: calc(94vh - 2.5rem);
+  }
+
   .items-container {
     .gallery-item {
       box-sizing: border-box;
@@ -219,6 +260,14 @@ defineExpose({ startAutoScroll, stopAutoScroll });
       height: calc(95vh / 3);
       position: relative;
       overflow: hidden;
+
+      @media (max-width: 768px) {
+        height: calc((94vh - 2.5rem) / 2);
+        background: var(--color-background-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
       & + & {
         border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -230,6 +279,15 @@ defineExpose({ startAutoScroll, stopAutoScroll });
         object-fit: cover;
         position: absolute;
         inset: 0;
+
+        @media (max-width: 768px) {
+          position: relative;
+          inset: auto;
+          width: auto;
+          height: 100%;
+          aspect-ratio: 1 / 1;
+          object-fit: cover;
+        }
 
         &:hover {
           cursor: pointer;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 
 const text = [
   "El proyecto se configura como una acción performática en proceso que ahonda en los modos de uso de los dispositivos de interacción digital, y la emergente violencia en ellos.",
@@ -16,8 +16,11 @@ const previousCharIndex = ref(0);
 const currentText = ref("");
 const previousText = ref("");
 const isLeft = ref(true);
+let activeTimeout: ReturnType<typeof setTimeout> | null = null;
+let destroyed = false;
 
 const typeWriter = () => {
+  if (destroyed) return;
   currentText.value = text[currentTextIndex.value];
   const typeSpeed = 80;
 
@@ -66,7 +69,12 @@ const deteleText = () => {
 };
 
 onMounted(() => {
-  setTimeout(typeWriter, 2000);
+  activeTimeout = setTimeout(typeWriter, 2000);
+});
+
+onUnmounted(() => {
+  destroyed = true;
+  if (activeTimeout !== null) clearTimeout(activeTimeout);
 });
 </script>
 
@@ -147,6 +155,23 @@ onMounted(() => {
     }
     50% {
       border-color: var(--tropical-indigo);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .typewriter {
+    width: 78vw;
+    font-size: 1rem;
+
+    &.left {
+      left: 5vw;
+      top: 12vh;
+    }
+
+    &.right {
+      right: 5vw;
+      top: 50vh;
     }
   }
 }

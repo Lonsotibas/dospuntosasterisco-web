@@ -16,9 +16,7 @@ const camera = new THREE.PerspectiveCamera(
 );
 
 const dracoLoader = new DRACOLoader();
-dracoLoader.setDecoderPath(
-  "https://www.gstatic.com/draco/versioned/decoders/1.5.7/"
-);
+dracoLoader.setDecoderPath("/draco/");
 dracoLoader.preload();
 
 const loader = new GLTFLoader();
@@ -43,6 +41,10 @@ const orbitRadius = 6;
 let currentOrbitAngle = Math.PI * 1.5;
 let renderer: THREE.WebGLRenderer;
 
+const isMobile = () => window.innerWidth <= 768;
+const getRenderHeight = () =>
+  isMobile() ? Math.round(window.innerHeight * 0.45) : window.innerHeight;
+
 const startOrbitAnimation = () => {
   const angleTarget = { angle: currentOrbitAngle };
   const targetAngle = currentOrbitAngle + Math.PI * 2;
@@ -65,14 +67,14 @@ const startOrbitAnimation = () => {
 
 const animate = () => {
   camera.lookAt(0, 0, 0);
-  renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.render(scene, camera);
 };
 
 const onResize = () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
+  const h = getRenderHeight();
+  camera.aspect = window.innerWidth / h;
   camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setSize(window.innerWidth, h);
 };
 
 onMounted(() => {
@@ -82,6 +84,7 @@ onMounted(() => {
   const container = document.getElementById("ar");
   container?.appendChild(renderer.domElement);
 
+  onResize();
   renderer.setAnimationLoop(animate);
   window.addEventListener("resize", onResize);
   startOrbitAnimation();
@@ -103,5 +106,13 @@ onUnmounted(() => {
   position: absolute;
   top: 0;
   z-index: -2;
+}
+
+@media (max-width: 768px) {
+  #ar {
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+  }
 }
 </style>

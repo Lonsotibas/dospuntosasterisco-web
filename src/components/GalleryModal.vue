@@ -118,7 +118,7 @@ defineExpose({ openModal, closeModal });
 
 .modal-overlay {
   user-select: none;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
@@ -129,6 +129,12 @@ defineExpose({ openModal, closeModal });
   align-items: center;
   z-index: 1000;
 
+  @media (max-width: 768px) {
+    align-items: flex-start;
+    padding-top: 3vh;
+    padding-top: 3dvh;
+  }
+
   .modal-container {
     position: relative;
     background: @dark-bg;
@@ -137,6 +143,42 @@ defineExpose({ openModal, closeModal });
     height: 90vh;
     max-width: 30vw;
     box-shadow: 0 5px 7px rgba(0, 0, 0, 0.75);
+
+    @media (max-width: 768px) {
+      max-width: 92vw;
+      width: 92vw;
+      height: 92wvh;
+      height: 92dvh;
+      max-height: 92vh;
+      max-height: 92dvh;
+      overflow: hidden;
+
+      .modal-header {
+        .back-button,
+        .tap-icon {
+          font-size: 24px;
+        }
+      }
+
+      .image-container {
+        height: 30vh;
+        height: 30dvh;
+      }
+
+      .modal-body {
+        height: calc(88vh - 5vh - 30vh);
+        height: calc(88dvh - 5dvh - 30dvh);
+        padding: 12px 16px;
+
+        .modal-title {
+          font-size: 1.4em !important;
+        }
+
+        .modal-description {
+          font-size: 1.2em !important;
+        }
+      }
+    }
 
     .scroll-icon {
       position: absolute;

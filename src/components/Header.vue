@@ -62,4 +62,18 @@ import { RouterLink } from "vue-router";
     color: var(--accent);
   }
 }
+
+@media (max-width: 768px) {
+  #header {
+    height: 6vh;
+    padding: 0 4vw;
+    font-size: 0.7rem;
+  }
+  #header-title {
+    font-size: 0.7rem;
+  }
+  #header-menu {
+    gap: 1.2rem;
+  }
+}
 </style>
